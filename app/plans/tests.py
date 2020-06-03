@@ -8,7 +8,6 @@ from .models import Plans
 
 @ddt
 class PlanCreateTestCase(TestCase):
-
     def setUp(self):
         self.content_type = 'application/json'
         self.payload = {
@@ -331,3 +330,28 @@ class PlanDeleteTestCase(TestCase):
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
 
+
+class PlanListTestCase(TestCase):
+    def setUp(self):
+        self.content_type = 'application/json'
+        self.payload = {
+            'plan_code': 'OiPos10gb100',
+            'minutes': 100,
+            'internet': '10GB',
+            'price': '29.75',
+            'plan_type': 'Pós',
+            'operator': 'Oi',
+            'ddds': [21, 22]
+        }
+
+    def test_request_invalid(self):
+        response = self.client.post(
+            reverse('list'), content_type=self.content_type)
+
+        self.assertContains(
+            response,
+            b'{"error": {"code": 400, "message": "Bad Request."}}',
+            status_code=400
+        )
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertNotEqual(response.request['REQUEST_METHOD'], 'GET')
