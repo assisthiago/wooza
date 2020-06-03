@@ -269,3 +269,32 @@ class PlanUpdateTestCase(TestCase):
         self.assertEqual(plan.plan_type, data['data'][0]['plan_type'])
         self.assertEqual(plan.operator, data['data'][0]['operator'])
         self.assertEqual(plan.ddds, data['data'][0]['ddds'])
+
+
+class PlanDeleteTestCase(TestCase):
+    def setUp(self):
+        self.content_type = 'application/json'
+        self.payload = {
+            'plan_code': 'OiPos10gb100',
+            'minutes': 100,
+            'internet': '10GB',
+            'price': '29.75',
+            'plan_type': 'Pós',
+            'operator': 'Oi',
+            'ddds': [21, 22]
+        }
+
+    def tearDown(self):
+        Plans.objects.all().delete()
+
+    def test_request_invalid(self):
+        response = self.client.get(
+            reverse('update', args=[1]), content_type=self.content_type)
+
+        self.assertContains(
+            response,
+            b'{"error": {"code": 400, "message": "Bad Request."}}',
+            status_code=400
+        )
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertNotEqual(response.request['REQUEST_METHOD'], 'DELETE')
