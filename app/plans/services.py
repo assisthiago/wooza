@@ -1,5 +1,7 @@
+import ast
 import json
 
+from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -48,6 +50,27 @@ def validates_payload(payload):
 
 def plan_code_already_exists(plan_code):
     return Plans.objects.filter(plan_code=plan_code).exists()
+
+def build_lookups(queryset):
+    if 'ddds' in queryset.keys():
+        q_ddds = Q(ddds__contains=ast.literal_eval(queryset['ddds'][0]))
+
+        if 'plan_type' in queryset.keys():
+            q_plan_type = Q(plan_type=queryset['plan_type'][0])
+        else:
+            q_plan_type = Q(plan_type__isnull=False)
+
+        if 'operator' in queryset.keys():
+            q_operator = Q(operator=queryset['operator'][0])
+        else:
+            q_operator = Q(operator__isnull=False)
+
+        if 'plan_code' in queryset.keys():
+            q_plan_code = Q(plan_code=queryset['plan_code'][0])
+        else:
+            q_plan_code = Q(plan_code__isnull=False)
+
+        return (q_ddds, q_plan_type, q_operator, q_plan_code)
 
 @csrf_exempt
 def create(request):
@@ -147,24 +170,37 @@ def list(request):
         return error_response(400, 'Bad Request.')
 
     payload = []
+    queryset = dict(request.GET)
 
-    plans = Plans.objects.all()
-    for plan in plans:
-        payload.append(
-            {
-                'id': plan.id,
-                'plan_code': plan.plan_code,
-                'minutes': plan.minutes,
-                'internet': plan.internet,
-                'price': plan.price,
-                'plan_type': plan.plan_type,
-                'operator': plan.operator,
-                'ddds': plan.ddds
-            }
-        )
+    lookups = build_lookups(queryset)
+
+    if lookups:
+        q_ddds, q_plan_type, q_operator, q_plan_code = lookups
+        plans = Plans.objects.filter(
+            q_ddds, q_plan_type, q_operator, q_plan_code)
+    else:
+        plans = Plans.objects.all()
+
+    if plans:
+        for plan in plans:
+            payload.append(
+                {
+                    'id': plan.id,
+                    'plan_code': plan.plan_code,
+                    'minutes': plan.minutes,
+                    'internet': plan.internet,
+                    'price': plan.price,
+                    'plan_type': plan.plan_type,
+                    'operator': plan.operator,
+                    'ddds': plan.ddds
+                }
+            )
+
+    status_code = 200 if payload else 404
 
     response = {
         'data': payload,
-        'status_code': 200
+        'total': len(payload),
+        'status_code': status_code
     }
-    return JsonResponse(response, status=200)
+    return JsonResponse(response, status=status_code)
