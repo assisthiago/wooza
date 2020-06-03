@@ -12,7 +12,7 @@ class PlanCreateTestCase(TestCase):
     def setUp(self):
         self.content_type = 'application/json'
         self.payload = {
-            'plan_code': 'OiPro100',
+            'plan_code': 'OiPos10gb100',
             'minutes': 100,
             'internet': '10GB',
             'price': '29.75',
@@ -99,3 +99,15 @@ class PlanCreateTestCase(TestCase):
         self.assertEqual(plan.plan_type, data['data'][0]['plan_type'])
         self.assertEqual(plan.operator, data['data'][0]['operator'])
         self.assertEqual(plan.ddds, data['data'][0]['ddds'])
+
+    def test_request_duplicate_plan_code(self):
+        self.client.post(reverse('create'), data=self.payload, content_type=self.content_type)
+
+        response = self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        expected_message = b'{"error": {"code": 500, "message": "Internal Server Error.", "invalid_fields": [{"plan_code": "already exists."}]}}'
+
+        self.assertContains(response, expected_message, status_code=500)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
