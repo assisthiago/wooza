@@ -146,28 +146,25 @@ def list(request):
     if not request.method == 'GET':
         return error_response(400, 'Bad Request.')
 
+    payload = []
+
+    plans = Plans.objects.all()
+    for plan in plans:
+        payload.append(
+            {
+                'id': plan.id,
+                'plan_code': plan.plan_code,
+                'minutes': plan.minutes,
+                'internet': plan.internet,
+                'price': plan.price,
+                'plan_type': plan.plan_type,
+                'operator': plan.operator,
+                'ddds': plan.ddds
+            }
+        )
+
     response = {
-        'data': [
-            {
-                'id': 1,
-                'plan_code': 'timpre200',
-                'minutes': 200,
-                'internet': '20GB',
-                'price': 99.90,
-                'plan_type': 'Pré',
-                'operator': 'Tim',
-                'ddds': [21,22]
-            },
-            {
-                'id': 2,
-                'plan_code': 'oipos150',
-                'minutes': 150,
-                'internet': '15GB',
-                'price': 49.90,
-                'plan_type': 'Pós',
-                'operator': 'Oi',
-                'ddds': [11]
-            },
-        ]
+        'data': payload,
+        'status_code': 200
     }
-    return JsonResponse(response, safe=False, status=200)
+    return JsonResponse(response, status=200)
