@@ -46,6 +46,9 @@ def validates_payload(payload):
 
     return invalid_fields
 
+def plan_code_already_exists(plan_code):
+    return Plans.objects.filter(plan_code=plan_code).exists()
+
 @csrf_exempt
 def create(request):
     if not request.method == 'POST':
@@ -57,6 +60,10 @@ def create(request):
     if invalid_fields:
         return error_response(400, 'Bad Request.', invalid_fields)
 
+    if plan_code_already_exists(payload['plan_code']):
+        invalid_fields = [{'plan_code': 'already exists.'}]
+        return error_response(500, 'Internal Server Error.', invalid_fields)
+
     try:
         plan = Plans(
             plan_code=payload['plan_code'],
@@ -67,7 +74,7 @@ def create(request):
             operator=payload['operator'],
             ddds=payload['ddds']
         )
-        plan.save()
+        # plan.save()
     except Exception:
         error_response(500, 'Internal Server Error')
 
