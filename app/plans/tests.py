@@ -355,3 +355,15 @@ class PlanListTestCase(TestCase):
         )
         self.assertEqual(response['content-type'], 'application/json')
         self.assertNotEqual(response.request['REQUEST_METHOD'], 'GET')
+
+    def test_plan_not_found(self):
+        response = self.client.get(
+            reverse('list'), content_type=self.content_type)
+
+        self.assertContains(
+            response,
+            b'{"data": [], "total": 0, "status_code": 404}',
+            status_code=404
+        )
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
