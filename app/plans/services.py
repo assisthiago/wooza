@@ -117,23 +117,32 @@ def delete(request, plan_id):
     if not request.method == 'POST':
         return helpers.error_response(400, 'Bad Request.')
 
-    payload = json.loads(request.body)
+    plan = helpers.get_plan_or_none(plan_id)
+    if not plan:
+        return helpers.error_response(404, 'Not Found.')
 
     response = {
         'data': [
             {
-                'id': plan_id,
-                'plan_code': 'timpre200',
-                'minutes': 200,
-                'internet': '20GB',
-                'price': 99.90,
-                'plan_type': 'Pré',
-                'operator': 'Tim',
-                'ddds': [21,22]
+                'id': plan.id,
+                'plan_code': plan.plan_code,
+                'minutes': plan.minutes,
+                'internet': plan.internet,
+                'price': plan.price,
+                'plan_type': plan.plan_type,
+                'operator': plan.operator,
+                'ddds': plan.ddds
             }
-        ]
+        ],
+        'status_code': 200
     }
-    return JsonResponse(response)
+
+    try:
+        plan.delete()
+    except Exception:
+        helpers.error_response(500, 'Internal Server Error')
+
+    return JsonResponse(response, status=200)
 
 @csrf_exempt
 def list(request):
