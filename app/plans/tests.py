@@ -297,4 +297,16 @@ class PlanDeleteTestCase(TestCase):
             status_code=400
         )
         self.assertEqual(response['content-type'], 'application/json')
-        self.assertNotEqual(response.request['REQUEST_METHOD'], 'DELETE')
+        self.assertNotEqual(response.request['REQUEST_METHOD'], 'POST')
+
+    def test_plan_not_found(self):
+        response = self.client.post(
+            reverse('update', args=[1]), content_type=self.content_type)
+
+        self.assertContains(
+            response,
+            b'{"error": {"code": 404, "message": "Not Found."}}',
+            status_code=404
+        )
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
