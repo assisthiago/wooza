@@ -78,8 +78,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'wooza_db',
-        'USER': 'thiagoassis',
-        'PASSWORD': '03059494',
+        'USER': '<username>',
+        'PASSWORD': '<password>',
         'HOST': 'localhost'
     }
 }
