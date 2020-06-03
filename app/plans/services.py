@@ -61,23 +61,56 @@ def update(request, plan_id):
     if request.method not in ['POST', 'PUT']:
         return helpers.error_response(400, 'Bad Request.')
 
+    plan = helpers.get_plan_or_none(plan_id)
+    if not plan:
+        return helpers.error_response(404, 'Not Found.')
+
     payload = json.loads(request.body)
+
+    invalid_fields = helpers.validates_payload_to_update(payload)
+    if invalid_fields:
+        return helpers.error_response(400, 'Bad Request.', invalid_fields)
+
+    if 'plan_code' in payload and helpers.plan_code_already_exists(payload['plan_code']):
+        invalid_fields = [{'plan_code': 'already exists.'}]
+        return helpers.error_response(500, 'Internal Server Error.', invalid_fields)
+
+    plan_code = payload['plan_code'] if 'plan_code' in payload else plan.plan_code
+    minutes = payload['minutes'] if 'minutes' in payload else plan.minutes
+    internet = payload['internet'] if 'internet' in payload else plan.internet
+    price = payload['price'] if 'price' in payload else plan.price
+    plan_type = payload['plan_type'] if 'plan_type' in payload else plan.plan_type
+    operator = payload['operator'] if 'operator' in payload else plan.operator
+    ddds = payload['ddds'] if 'ddds' in payload else plan.ddds
+
+    try:
+        plan.plan_code=plan_code
+        plan.minutes=int(minutes)
+        plan.internet=internet
+        plan.price=float(price)
+        plan.plan_type=plan_type.lower()
+        plan.operator=operator.lower()
+        plan.ddds=ddds
+        plan.save()
+    except Exception:
+        helpers.error_response(500, 'Internal Server Error')
 
     response = {
         'data': [
             {
-                'id': plan_id,
-                'plan_code': 'timpre200',
-                'minutes': 200,
-                'internet': '20GB',
-                'price': 99.90,
-                'plan_type': 'Pré',
-                'operator': 'Tim',
-                'ddds': [21,22]
+                'id': plan.id,
+                'plan_code': plan.plan_code,
+                'minutes': plan.minutes,
+                'internet': plan.internet,
+                'price': plan.price,
+                'plan_type': plan.plan_type,
+                'operator': plan.operator,
+                'ddds': plan.ddds
             }
-        ]
+        ],
+        'status_code': 200
     }
-    return JsonResponse(response)
+    return JsonResponse(response, status=200)
 
 @csrf_exempt
 def delete(request, plan_id):

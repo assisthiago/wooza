@@ -48,6 +48,35 @@ def validates_payload(payload):
 
     return invalid_fields
 
+def validates_payload_to_update(payload):
+    invalid_fields = []
+
+    for key in payload:
+        if not payload[key]:
+            invalid_fields.append({key: 'is empty'})
+
+        elif key == 'minutes':
+            try:
+                int(payload['minutes'])
+            except ValueError:
+                invalid_fields.append({'minutes': 'is not a valid number.'})
+
+        elif key == 'price':
+            try:
+                float(payload['price'])
+            except ValueError:
+                invalid_fields.append({'price': 'is not a valid number.'})
+
+        elif key == 'plan_type' and payload['plan_type'] not in lists.PLAN_TYPES_CHOICE:
+            invalid_fields.append({'plan_type': 'is not a valid choice.'})
+
+        elif key == 'ddds':
+            for ddd in payload['ddds']:
+                if ddd not in lists.DDDS_CHOICE:
+                    invalid_fields.append({'ddds': 'is not a valid choice.'})
+
+    return invalid_fields
+
 def plan_code_already_exists(plan_code):
     return Plans.objects.filter(plan_code=plan_code).exists()
 
@@ -71,3 +100,9 @@ def build_lookups(queryset):
             q_plan_code = Q(plan_code__isnull=False)
 
         return (q_ddds, q_plan_type, q_operator, q_plan_code)
+
+def get_plan_or_none(plan_id):
+    try:
+        return Plans.objects.get(pk=plan_id)
+    except Plans.DoesNotExist:
+        return None
