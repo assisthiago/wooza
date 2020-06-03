@@ -546,3 +546,18 @@ class PlanSearchTestCase(TestCase):
         self.assertContains(response, '"plan_code": "TimControle20gb200"')
         self.assertContains(response, '"operator": "tim"')
         self.assertContains(response, '"total": 1')
+
+    def test_plan_code_without_ddd_filter(self):
+        querystring = 'plan_code=TimControle20gb200'
+        path = self.url + querystring
+
+        response = self.client.get(path, content_type=self.content_type)
+
+        data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+        self.assertContains(response, '"plan_code": "OiPos10gb100"')
+        self.assertContains(response, '"plan_code": "TimControle20gb200"')
+        self.assertContains(response, '"total": 2')
