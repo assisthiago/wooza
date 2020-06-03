@@ -482,7 +482,18 @@ class PlanSearchTestCase(TestCase):
         self.assertContains(response, '"plan_type": "controle"')
         self.assertContains(response, '"total": 2')
 
-    def test_plan_type_with_ddd_filter(self):
+    def test_invalid_plan_type_with_ddd_filter(self):
+        querystring = 'ddds=[21]&plan_type=Limitado'
+        path = self.url + querystring
+
+        response = self.client.get(path, content_type=self.content_type)
+
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+        self.assertContains(response, '"data": []', status_code=404)
+        self.assertContains(response, '"total": 0', status_code=404)
+
+    def test_valid_plan_type_with_ddd_filter(self):
         querystring = 'ddds=[21]&plan_type=Controle'
         path = self.url + querystring
 
