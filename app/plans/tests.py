@@ -18,7 +18,7 @@ class PlanCreateTestCase(TestCase):
             'price': '29.75',
             'plan_type': 'Pós',
             'operator': 'Oi',
-            'ddds': [21]
+            'ddds': [21, 22]
         }
 
     def tearDown(self):
@@ -80,7 +80,7 @@ class PlanCreateTestCase(TestCase):
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
 
-    def test_request_valid(self):
+    def test_create_plan(self):
         response = self.client.post(
             reverse('create'), data=self.payload, content_type=self.content_type)
 
