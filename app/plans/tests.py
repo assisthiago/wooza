@@ -301,7 +301,7 @@ class PlanDeleteTestCase(TestCase):
 
     def test_plan_not_found(self):
         response = self.client.post(
-            reverse('update', args=[1]), content_type=self.content_type)
+            reverse('delete', args=[1]), content_type=self.content_type)
 
         self.assertContains(
             response,
@@ -310,3 +310,25 @@ class PlanDeleteTestCase(TestCase):
         )
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+
+    def test_delete_plan(self):
+        result = self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        content = json.loads(result.content)
+        plan_id = content['data'][0]['id']
+
+        plan_created = Plans.objects.filter(pk=plan_id).exists()
+
+        self.assertTrue(plan_created)
+
+        response = self.client.post(
+            reverse('delete', args=[plan_id]), content_type=self.content_type)
+
+        plan_deleted = Plans.objects.filter(pk=plan_id).exists()
+
+        self.assertFalse(plan_deleted)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+
