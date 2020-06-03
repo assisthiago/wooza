@@ -114,7 +114,6 @@ class PlanCreateTestCase(TestCase):
 
 @ddt
 class PlanUpdateTestCase(TestCase):
-
     def setUp(self):
         self.content_type = 'application/json'
         self.payload = {
