@@ -344,6 +344,9 @@ class PlanListTestCase(TestCase):
             'ddds': [21, 22]
         }
 
+    def tearDown(self):
+        Plans.objects.all().delete()
+
     def test_request_invalid(self):
         response = self.client.post(
             reverse('list'), content_type=self.content_type)
@@ -365,5 +368,24 @@ class PlanListTestCase(TestCase):
             b'{"data": [], "total": 0, "status_code": 404}',
             status_code=404
         )
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+
+    def test_list_plans(self):
+        self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        payload = self.payload
+        payload['plan_code'] = 'Oi100Pos10gb'
+        self.client.post(
+            reverse('create'), data=payload, content_type=self.content_type)
+
+        response = self.client.get(
+            reverse('list'), content_type=self.content_type)
+
+        self.assertContains(response, '"total": 2')
+        self.assertContains(response, '"plan_code": "OiPos10gb100"')
+        self.assertContains(response, '"plan_code": "Oi100Pos10gb"')
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
