@@ -56,12 +56,12 @@ def build_lookups(queryset):
         q_ddds = Q(ddds__contains=ast.literal_eval(queryset['ddds'][0]))
 
         if 'plan_type' in queryset.keys():
-            q_plan_type = Q(plan_type=queryset['plan_type'][0])
+            q_plan_type = Q(plan_type=queryset['plan_type'][0].lower())
         else:
             q_plan_type = Q(plan_type__isnull=False)
 
         if 'operator' in queryset.keys():
-            q_operator = Q(operator=queryset['operator'][0])
+            q_operator = Q(operator=queryset['operator'][0].lower())
         else:
             q_operator = Q(operator__isnull=False)
 
