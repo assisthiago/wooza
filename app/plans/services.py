@@ -17,7 +17,7 @@ def create(request):
 
     payload = json.loads(request.body)
 
-    invalid_fields = validates_payload(payload)
+    invalid_fields = helpers.validates_payload(payload)
     if invalid_fields:
         return helpers.error_response(400, 'Bad Request.', invalid_fields)
 
@@ -31,8 +31,8 @@ def create(request):
             minutes=int(payload['minutes']),
             internet=payload['internet'],
             price=float(payload['price']),
-            plan_type=payload['plan_type'],
-            operator=payload['operator'],
+            plan_type=payload['plan_type'].lower(),
+            operator=payload['operator'].lower(),
             ddds=payload['ddds']
         )
         plan.save()
