@@ -27,7 +27,10 @@ def validates_payload(payload):
 
     for key in payload:
         if not payload[key]:
-            invalid_fields.append({key: 'is empty'})
+            invalid_fields.append({key: 'is empty.'})
+
+    if invalid_fields:
+        return invalid_fields
 
     try:
         int(payload['minutes'])
@@ -53,7 +56,7 @@ def validates_payload_to_update(payload):
 
     for key in payload:
         if not payload[key]:
-            invalid_fields.append({key: 'is empty'})
+            invalid_fields.append({key: 'is empty.'})
 
         elif key == 'minutes':
             try:
