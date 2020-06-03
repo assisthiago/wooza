@@ -155,3 +155,29 @@ class PlanUpdateTestCase(TestCase):
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'PUT')
 
+    @data(
+        ('minutes', '100a', 'is not a valid number.'),
+        ('price', '100a.90', 'is not a valid number.'),
+        ('price', '100a.90', 'is not a valid number.'),
+        ('plan_type', 'Limitado', 'is not a valid choice.'),
+        ('ddds', [23], 'is not a valid choice.'),
+    )
+    @unpack
+    def test_request_with_invalid_field(self, field, value, message):
+        result = self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        data = json.loads(result.content)
+        plan_id = data['data'][0]['id']
+
+        payload = self.payload
+        payload[field] = value
+
+        response = self.client.post(
+            reverse('update', args=[plan_id]), data=payload, content_type=self.content_type)
+
+        expected_message = '{"error": {"code": 400, "message": "Bad Request.", "invalid_fields": [{"'+field+'": "'+message+'"}]}}'
+
+        self.assertContains(response, expected_message.encode(), status_code=400)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
