@@ -74,7 +74,7 @@ def create(request):
             operator=payload['operator'],
             ddds=payload['ddds']
         )
-        # plan.save()
+        plan.save()
     except Exception:
         error_response(500, 'Internal Server Error')
 
