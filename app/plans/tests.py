@@ -27,13 +27,12 @@ class PlanCreateTestCase(TestCase):
         response = self.client.get(
             reverse('create'), content_type=self.content_type)
 
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertNotEqual(response.request['REQUEST_METHOD'], 'POST')
         self.assertContains(
             response,
             b'{"error": {"code": 400, "message": "Bad Request."}}',
-            status_code=400
-        )
-        self.assertEqual(response['content-type'], 'application/json')
-        self.assertNotEqual(response.request['REQUEST_METHOD'], 'POST')
+            status_code=400)
 
     @data(
         'plan_code',
@@ -51,11 +50,12 @@ class PlanCreateTestCase(TestCase):
         response = self.client.post(
             reverse('create'), data=payload, content_type=self.content_type)
 
-        expected_message = '{"error": {"code": 400, "message": "Bad Request.", "invalid_fields": [{"'+field+'": "is empty."}]}}'
-
-        self.assertContains(response, expected_message.encode(), status_code=400)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+        self.assertContains(response, '"code": 400', status_code=400)
+        self.assertContains(response, '"message": "Bad Request."', status_code=400)
+        self.assertContains(
+            response, '"invalid_fields": [{"'+field+'": "is empty."', status_code=400)
 
     @data(
         ('minutes', '100a', 'is not a valid number.'),
@@ -72,11 +72,12 @@ class PlanCreateTestCase(TestCase):
         response = self.client.post(
             reverse('create'), data=payload, content_type=self.content_type)
 
-        expected_message = '{"error": {"code": 400, "message": "Bad Request.", "invalid_fields": [{"'+field+'": "'+message+'"}]}}'
-
-        self.assertContains(response, expected_message.encode(), status_code=400)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+        self.assertContains(response, '"code": 400', status_code=400)
+        self.assertContains(response, '"message": "Bad Request."', status_code=400)
+        self.assertContains(
+            response, '"invalid_fields": [{"'+field+'": "'+message+'"', status_code=400)
 
     def test_create_plan(self):
         response = self.client.post(
@@ -104,11 +105,13 @@ class PlanCreateTestCase(TestCase):
         response = self.client.post(
             reverse('create'), data=self.payload, content_type=self.content_type)
 
-        expected_message = b'{"error": {"code": 500, "message": "Internal Server Error.", "invalid_fields": [{"plan_code": "already exists."}]}}'
-
-        self.assertContains(response, expected_message, status_code=500)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+        self.assertContains(response, '"code": 500', status_code=500)
+        self.assertContains(
+            response, '"message": "Internal Server Error."', status_code=500)
+        self.assertContains(
+            response, '"invalid_fields": [{"plan_code": "already exists."', status_code=500)
 
 
 @ddt
@@ -132,26 +135,20 @@ class PlanUpdateTestCase(TestCase):
         response = self.client.get(
             reverse('update', args=[1]), content_type=self.content_type)
 
-        self.assertContains(
-            response,
-            b'{"error": {"code": 400, "message": "Bad Request."}}',
-            status_code=400
-        )
         self.assertEqual(response['content-type'], 'application/json')
         self.assertNotEqual(response.request['REQUEST_METHOD'], 'POST')
         self.assertNotEqual(response.request['REQUEST_METHOD'], 'PUT')
+        self.assertContains(response, '"code": 400', status_code=400)
+        self.assertContains(response, '"message": "Bad Request."', status_code=400)
 
     def test_plan_not_found(self):
         response = self.client.put(
             reverse('update', args=[1]), content_type=self.content_type)
 
-        self.assertContains(
-            response,
-            b'{"error": {"code": 404, "message": "Not Found."}}',
-            status_code=404
-        )
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'PUT')
+        self.assertContains(response, '"code": 404', status_code=404)
+        self.assertContains(response, '"message": "Not Found."', status_code=404)
 
     @data(
         ('minutes', '100a', 'is not a valid number.'),
@@ -174,11 +171,12 @@ class PlanUpdateTestCase(TestCase):
         response = self.client.put(
             reverse('update', args=[plan_id]), data=payload, content_type=self.content_type)
 
-        expected_message = '{"error": {"code": 400, "message": "Bad Request.", "invalid_fields": [{"'+field+'": "'+message+'"}]}}'
-
-        self.assertContains(response, expected_message.encode(), status_code=400)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'PUT')
+        self.assertContains(response, '"code": 400', status_code=400)
+        self.assertContains(response, '"message": "Bad Request."', status_code=400)
+        self.assertContains(
+            response, '"invalid_fields": [{"'+field+'": "'+message+'"', status_code=400)
 
     def test_request_duplicate_plan_code(self):
         result = self.client.post(
@@ -190,11 +188,15 @@ class PlanUpdateTestCase(TestCase):
         response = self.client.put(
             reverse('update', args=[plan_id]), data=self.payload, content_type=self.content_type)
 
-        expected_message = b'{"error": {"code": 500, "message": "Internal Server Error.", "invalid_fields": [{"plan_code": "already exists."}]}}'
+        expected_message = b'{"error": {, , "invalid_fields": [{"plan_code": "already exists."}]}}'
 
-        self.assertContains(response, expected_message, status_code=500)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'PUT')
+        self.assertContains(response, '"code": 500', status_code=500)
+        self.assertContains(
+            response, '"message": "Internal Server Error."', status_code=500)
+        self.assertContains(
+            response, '"invalid_fields": [{"plan_code": "already exists."', status_code=500)
 
     def test_update_plan_with_put_request(self):
         result = self.client.post(
