@@ -173,11 +173,27 @@ class PlanUpdateTestCase(TestCase):
         payload = self.payload
         payload[field] = value
 
-        response = self.client.post(
+        response = self.client.put(
             reverse('update', args=[plan_id]), data=payload, content_type=self.content_type)
 
         expected_message = '{"error": {"code": 400, "message": "Bad Request.", "invalid_fields": [{"'+field+'": "'+message+'"}]}}'
 
         self.assertContains(response, expected_message.encode(), status_code=400)
         self.assertEqual(response['content-type'], 'application/json')
-        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'PUT')
+
+    def test_request_duplicate_plan_code(self):
+        result = self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        data = json.loads(result.content)
+        plan_id = data['data'][0]['id']
+
+        response = self.client.put(
+            reverse('update', args=[plan_id]), data=self.payload, content_type=self.content_type)
+
+        expected_message = b'{"error": {"code": 500, "message": "Internal Server Error.", "invalid_fields": [{"plan_code": "already exists."}]}}'
+
+        self.assertContains(response, expected_message, status_code=500)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'PUT')
