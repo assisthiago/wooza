@@ -12,6 +12,7 @@ from . import helpers
 
 @csrf_exempt
 def create(request):
+
     if not request.method == 'POST':
         return helpers.error_response(400, 'Bad Request.')
 
