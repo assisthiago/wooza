@@ -233,3 +233,39 @@ class PlanUpdateTestCase(TestCase):
         self.assertEqual(plan.plan_type, data['data'][0]['plan_type'])
         self.assertEqual(plan.operator, data['data'][0]['operator'])
         self.assertEqual(plan.ddds, data['data'][0]['ddds'])
+
+    def test_update_plan_with_post_request(self):
+        result = self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        content = json.loads(result.content)
+        plan_id = content['data'][0]['id']
+
+        payload = {
+            'plan_code': 'TimControle20gb200',
+            'minutes': 200,
+            'internet': '20GB',
+            'price': '99.85',
+            'plan_type': 'Controle',
+            'operator': 'Tim',
+            'ddds': [21, 22, 11]
+        }
+
+        response = self.client.post(
+            reverse('update', args=[plan_id]), data=payload, content_type=self.content_type)
+
+        data = json.loads(response.content)
+        plan = Plans.objects.get(pk=plan_id)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+        self.assertTrue(plan)
+        self.assertEqual(plan.id, data['data'][0]['id'])
+        self.assertEqual(plan.plan_code, data['data'][0]['plan_code'])
+        self.assertEqual(plan.minutes, data['data'][0]['minutes'])
+        self.assertEqual(plan.internet, data['data'][0]['internet'])
+        self.assertEqual(float(plan.price), data['data'][0]['price'])
+        self.assertEqual(plan.plan_type, data['data'][0]['plan_type'])
+        self.assertEqual(plan.operator, data['data'][0]['operator'])
+        self.assertEqual(plan.ddds, data['data'][0]['ddds'])
