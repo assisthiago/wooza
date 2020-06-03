@@ -289,7 +289,7 @@ class PlanDeleteTestCase(TestCase):
 
     def test_request_invalid(self):
         response = self.client.get(
-            reverse('update', args=[1]), content_type=self.content_type)
+            reverse('delete', args=[1]), content_type=self.content_type)
 
         self.assertContains(
             response,
