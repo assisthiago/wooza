@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from ddt import data, ddt, unpack
+from .models import Plans
 
 @ddt
 class PlanCreateTestCase(TestCase):
@@ -20,6 +21,9 @@ class PlanCreateTestCase(TestCase):
             'ddds': [21]
         }
 
+    def tearDown(self):
+        Plans.objects.all().delete()
+
     def test_request_invalid(self):
         response = self.client.get(
             reverse('create'), content_type=self.content_type)
@@ -30,7 +34,7 @@ class PlanCreateTestCase(TestCase):
             status_code=400
         )
         self.assertEqual(response['content-type'], 'application/json')
-        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+        self.assertNotEqual(response.request['REQUEST_METHOD'], 'POST')
 
     @data(
         'plan_code',
@@ -75,3 +79,23 @@ class PlanCreateTestCase(TestCase):
         self.assertContains(response, expected_message.encode(), status_code=400)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+
+    def test_request_valid(self):
+        response = self.client.post(
+            reverse('create'), data=self.payload, content_type=self.content_type)
+
+        data = json.loads(response.content)
+        plan = Plans.objects.get(pk=data['data'][0]['id'])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'POST')
+        self.assertTrue(plan)
+        self.assertEqual(plan.id, data['data'][0]['id'])
+        self.assertEqual(plan.plan_code, data['data'][0]['plan_code'])
+        self.assertEqual(plan.minutes, data['data'][0]['minutes'])
+        self.assertEqual(plan.internet, data['data'][0]['internet'])
+        self.assertEqual(plan.price, data['data'][0]['price'])
+        self.assertEqual(plan.plan_type, data['data'][0]['plan_type'])
+        self.assertEqual(plan.operator, data['data'][0]['operator'])
+        self.assertEqual(plan.ddds, data['data'][0]['ddds'])
