@@ -426,7 +426,7 @@ class PlanSearchTestCase(TestCase):
     def tearDown(self):
         Plans.objects.all().delete()
 
-    def test_invalid_ddds_filter(self):
+    def test_invalid_ddd_filter(self):
         querystring = 'ddds=[00]'
         path = self.url + querystring
 
@@ -437,7 +437,7 @@ class PlanSearchTestCase(TestCase):
         self.assertContains(response, '"data": []', status_code=404)
         self.assertContains(response, '"total": 0', status_code=404)
 
-    def test_valid_ddds_filter(self):
+    def test_valid_ddd_filter(self):
         querystring = 'ddds=[21]'
         path = self.url + querystring
 
@@ -451,4 +451,17 @@ class PlanSearchTestCase(TestCase):
         self.assertContains(response, '"plan_code": "TimControle20gb200"')
         self.assertContains(response, '"ddds": [21, 11]')
         self.assertContains(response, '"total": 2')
+
+    def test_valid_ddds_filter_(self):
+        querystring = 'ddds=[21, 22]'
+        path = self.url + querystring
+
+        response = self.client.get(path, content_type=self.content_type)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+        self.assertContains(response, '"plan_code": "OiPos10gb100"')
+        self.assertContains(response, '"ddds": [21, 22]')
+        self.assertContains(response, '"total": 1')
 
