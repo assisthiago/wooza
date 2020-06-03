@@ -391,3 +391,64 @@ class PlanListTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/json')
         self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+
+
+class PlanSearchTestCase(TestCase):
+    def setUp(self):
+        self.url = '/plans/?'
+        self.content_type = 'application/json'
+        self.payload1 = {
+            'plan_code': 'OiPos10gb100',
+            'minutes': 100,
+            'internet': '10GB',
+            'price': '29.75',
+            'plan_type': 'Pós',
+            'operator': 'Oi',
+            'ddds': [21, 22]
+        }
+
+        self.payload2 = {
+            'plan_code': 'TimControle20gb200',
+            'minutes': 200,
+            'internet': '20GB',
+            'price': '99.85',
+            'plan_type': 'Controle',
+            'operator': 'Tim',
+            'ddds': [21, 11]
+        }
+
+        self.client.post(
+            reverse('create'), data=self.payload1, content_type=self.content_type)
+
+        self.client.post(
+            reverse('create'), data=self.payload2, content_type=self.content_type)
+
+    def tearDown(self):
+        Plans.objects.all().delete()
+
+    def test_invalid_ddds_filter(self):
+        querystring = 'ddds=[00]'
+        path = self.url + querystring
+
+        response = self.client.get(path, content_type=self.content_type)
+
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+        self.assertContains(response, '"data": []', status_code=404)
+        self.assertContains(response, '"total": 0', status_code=404)
+
+    def test_valid_ddds_filter(self):
+        querystring = 'ddds=[21]'
+        path = self.url + querystring
+
+        response = self.client.get(path, content_type=self.content_type)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response.request['REQUEST_METHOD'], 'GET')
+        self.assertContains(response, '"plan_code": "OiPos10gb100"')
+        self.assertContains(response, '"ddds": [21, 22]')
+        self.assertContains(response, '"plan_code": "TimControle20gb200"')
+        self.assertContains(response, '"ddds": [21, 11]')
+        self.assertContains(response, '"total": 2')
+
