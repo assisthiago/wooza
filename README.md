@@ -3,16 +3,16 @@ _API de gerenciamento de planos telefônicos onde é possível criar, consultar,
 
 ## Navegação
 - Instalação
-  - [Clonando o projeto](https://github.com/assisthiago/wooza/new/master?readme=1#clonando-o-projeto)
-  - [Instalação dos requisitos](https://github.com/assisthiago/wooza/new/master?readme=1#instala%C3%A7%C3%A3o-dos-requisitos)
-  - [Configuração o postgresql](https://github.com/assisthiago/wooza/new/master?readme=1#configura%C3%A7%C3%A3o-o-postgresql)
-  - [Configuração o projeto](https://github.com/assisthiago/wooza/new/master?readme=1#configura%C3%A7%C3%A3o-o-projeto)
+  - [Clonando o projeto](https://github.com/assisthiago/wooza#clonando-o-projeto)
+  - [Instalação dos requisitos](https://github.com/assisthiago/wooza#instala%C3%A7%C3%A3o-dos-requisitos)
+  - [Configuração o postgresql](https://github.com/assisthiago/wooza#configura%C3%A7%C3%A3o-o-postgresql)
+  - [Configuração o projeto](https://github.com/assisthiago/wooza#configura%C3%A7%C3%A3o-o-projeto)
 - API
-  - [API de Criação](https://github.com/assisthiago/wooza/new/master?readme=1#api---cria%C3%A7%C3%A3o)
-  - [API de Edição](https://github.com/assisthiago/wooza/new/master?readme=1#api---edi%C3%A7%C3%A3o)
-  - [API de Deleção](https://github.com/assisthiago/wooza/new/master?readme=1#api---dele%C3%A7%C3%A3o)
-  - [API de Consulta](https://github.com/assisthiago/wooza/new/master?readme=1#api---consulta)
-    - [Busca](https://github.com/assisthiago/wooza/new/master?readme=1#busca)
+  - [API de Criação](https://github.com/assisthiago/wooza#api---cria%C3%A7%C3%A3o)
+  - [API de Edição](https://github.com/assisthiago/wooza#api---edi%C3%A7%C3%A3o)
+  - [API de Deleção](https://github.com/assisthiago/wooza#api---dele%C3%A7%C3%A3o)
+  - [API de Consulta](https://github.com/assisthiago/wooza#api---consulta)
+    - [Busca](https://github.com/assisthiago/wooza#busca)
 
 ## Instalação
 - Tutorial disponível para o sistema MacOS.
@@ -286,7 +286,7 @@ Exemplo do body para criar um plano
 ```
 
 ### Validação
-Assim como a validação é feita na [API de Criação](https://github.com/assisthiago/wooza/new/master?readme=1#valida%C3%A7%C3%A3o) é feita na API de Edição.
+Assim como a validação é feita na [API de Criação](https://github.com/assisthiago/wooza#valida%C3%A7%C3%A3o) é feita na API de Edição.
 Porém, caso um `id` seja passado e o objeto não exista na base, a API irá retornar uma mensagem de erro.
 ```
 {
