@@ -13,6 +13,7 @@ _API de gerenciamento de planos telefônicos onde é possível criar, consultar,
   - [API de Deleção](https://github.com/assisthiago/wooza#api---dele%C3%A7%C3%A3o)
   - [API de Consulta](https://github.com/assisthiago/wooza#api---consulta)
     - [Busca](https://github.com/assisthiago/wooza#busca)
+- [Testes](https://github.com/assisthiago/wooza#testes)
 
 ## Instalação
 - Tutorial disponível para o sistema MacOS.
@@ -584,4 +585,18 @@ GET http://127.0.0.1:8000/plans/?ddds=[21]&plan_code=OiPos100
     "total": 1,
     "status_code": 200
 }
+```
+
+## Testes
+```
+(venv) $ cd app/
+(venv) $ python manage.py test
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+...........................................
+----------------------------------------------------------------------
+Ran 43 tests in 1.456s
+
+OK
+Destroying test database for alias 'default'...
 ```
